@@ -1,0 +1,123 @@
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 50px;
+}
+
+.title {
+    display: flex;
+    font-size: 36px;
+    margin-bottom: 50px;
+    color: white;
+    text-align: left;
+}
+
+.meta {
+    margin-bottom: 20px;
+}
+
+.type, .category {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    color: white;
+    font-weight: 600;
+}
+
+.technology {
+    background-color: rgb(255, 153, 125, 0.2);
+    color: #FF997D;
+    border-radius: 20px;
+    width: max-content;
+}
+
+.culture {
+    background-color: rgb(244, 141, 160, 0.2);
+    color: #F48DA0;
+    border-radius: 20px;
+    width: max-content;
+}
+
+.society {
+    background-color: rgb(176, 113, 252, 0.2);
+    color: #B071FC;
+    width: max-content;
+    border-radius: 20px;
+}
+
+.image {
+    width: 100%;
+    border-radius: 10px;
+    height: auto;
+    max-height: 200px;
+    object-fit: cover;
+}
+
+.content {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    color: white;
+}
+
+.backButton {
+    background-color: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    border: none;
+    cursor: pointer;
+    margin-bottom: 50px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.commentInputContainer {
+    margin: 30px 0;
+    width: 100%;
+}
+
+.commentInputWrapper {
+    position: relative;
+    width: 100%;
+}
+
+.commentInput {
+    width: 100%;
+    padding: 15px 50px 15px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    resize: none;
+    font-family: inherit;
+    font-size: 16px;
+    background: #1D1D28;
+    box-sizing: border-box;
+    color: white;
+}
+
+.commentInput:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.commentSubmitIcon {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.commentSubmitIcon:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.commentSubmitButton {
+    display: none;
+}

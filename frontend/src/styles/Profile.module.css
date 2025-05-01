@@ -1,0 +1,164 @@
+.profile {
+    min-height: 100vh;
+}
+
+h1 {
+    text-align: center;
+    color: white;
+}
+
+.profileInfo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    background: #1D1D28;
+    border-radius: 20px;
+    height: 250px;
+    max-width: 500px;
+    margin: 0 auto;
+    margin-top: 80px;
+    border: 1px solid rgb(55, 55, 55);
+}
+
+.userBox {
+    background: gray;
+    border-radius: 50px;
+    display: flex;
+    justify-content: center;
+}
+
+.user {
+    height: 56px;
+    width: 56px;
+    padding: 15px;
+}
+
+.username {
+    color: white;
+    font-weight: 600;
+}
+
+.logout {
+    color: gray;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.metaInfo {
+    display: flex;
+    justify-content: space-between;
+    max-width: 500px;
+    margin: 0 auto;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.statsBox {
+    color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.statBox {
+    background: #1D1D28;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid rgb(55, 55, 55);
+}
+
+.statNumber {
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.statLabel {
+    color: gray;
+}
+
+.meter {
+    max-width: 800px;
+    margin: 0 auto;
+    margin-bottom: 30px;
+    margin-top: 30px;
+}
+
+.hr {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 10px;
+}
+
+.commentsList {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    max-width: 500px;
+    margin: 0 auto;
+    margin-bottom: 50px;
+    margin-top: 30px;
+}
+
+@media (max-width: 600px) {
+    .profileInfo {
+        flex-direction: column;
+        height: auto;
+        padding: 20px;
+        max-width: 290px;
+    }
+
+    .userBox {
+        margin-bottom: 15px;
+    }
+
+    .metaInfo {
+        gap: 10px;
+        max-width: 330px;
+    }
+
+    .statsBox {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .meter {
+        padding: 0 15px;
+    }
+
+    .commentsList {
+        padding: 0 15px;
+    }
+
+    .statBox {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .statNumber {
+        font-size: 18px;
+    }
+
+    .statLabel {
+        font-size: 14px;
+    }
+    
+    .hr {
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 600px) {
+    .user {
+        height: 48px;
+        width: 48px;
+        padding: 10px;
+    }
+}
