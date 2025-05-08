@@ -1,71 +1,66 @@
 import React, { useState, useEffect } from "react";
 import cl from "../styles/Auth.module.css";
-import {useNavigate} from 'react-router-dom'
-import { MAIN_PAGE_ROUTE } from '../utils/consts'
+import { useNavigate } from "react-router-dom";
+import { MAIN_PAGE_ROUTE } from "../utils/consts";
 import { useAuth } from "../context/AuthContext";
 
-const API_URL = "http://localhost:8000";
+const API_URL = "http://localhost:3000"; // порт Go-сервера
 
 const Auth = () => {
-    const [isLogin, setIsLogin] = useState(true)
-    const [username, setUsername] = useState("")
-    const [password, setPassword] = useState("")
-    const [userData, setUserData] = useState(JSON.parse(localStorage.getItem("userData") || "null"))
-    const {setAuthenticationStatus} = useAuth()
-    const navigate = useNavigate()
+    const [isLogin, setIsLogin] = useState(true);
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [userData, setUserData] = useState(JSON.parse(localStorage.getItem("userData") || "null"));
+    const { setAuthenticationStatus } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (userData) {
-            // Если у нас есть данные пользователя, считаем его авторизованным
-            setAuthenticationStatus({
-                isAuthenticated: true,
-            })
+            setAuthenticationStatus({ isAuthenticated: true });
         }
-    }, [userData, setAuthenticationStatus])
+    }, [userData, setAuthenticationStatus]);
 
     const handleAuth = async (e) => {
-        e.preventDefault()
-        const endpoint = isLogin ? "/login" : "/users/";
-        const payload = isLogin
-        && {username, password}
+        e.preventDefault();
+        const endpoint = isLogin ? "/login" : "/register";
+        const payload = { login: username, password };
 
         try {
             const response = await fetch(`${API_URL}${endpoint}`, {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
-            })
+            });
 
-            const data = await response.json()
+            const data = await response.json();
+
             if (response.ok) {
                 if (isLogin) {
-                    // Сохраняем данные пользователя в localStorage
-                    localStorage.setItem("userData", JSON.stringify(data))
-                    setUserData(data)
-                    setAuthenticationStatus({
-                        isAuthenticated: true,
-                    })
-                    navigate(MAIN_PAGE_ROUTE)
+                    const userObject = { username, id: data.id }; // Сохраняем id
+                    localStorage.setItem("userData", JSON.stringify(userObject));
+                    setUserData(userObject);
+                    setAuthenticationStatus({ isAuthenticated: true });
+                    navigate(MAIN_PAGE_ROUTE);
                 } else {
-                    alert("Регистрация успешна! Теперь войдите.")
-                    setIsLogin(true)
+                    alert("Регистрация успешна! Теперь войдите.");
+                    setIsLogin(true);
                 }
             } else {
-                alert(data.detail || "Ошибка авторизации/регистрации")
+                alert(data.message || "Ошибка авторизации/регистрации");
             }
         } catch (error) {
-            console.error("Ошибка при авторизации:", error)
-            alert("Произошла ошибка при подключении к серверу")
+            console.error("Ошибка при авторизации:", error);
+            alert("Произошла ошибка при подключении к серверу");
         }
-    }
+    };
 
     const logout = () => {
-        localStorage.removeItem("userData")
-        setUserData(null)
-        setUsername("")
-        setPassword("")
-        setAuthenticationStatus({isAuthenticated: false, isAdmin: false})
-    }
+        localStorage.removeItem("userData");
+        setUserData(null);
+        setUsername("");
+        setPassword("");
+        setAuthenticationStatus({ isAuthenticated: false, isAdmin: false });
+    };
 
     return (
         <div className={cl.authContainer}>
@@ -94,7 +89,7 @@ const Auth = () => {
                         required
                         className={cl.inputField}
                     />
-                    
+
                     <button type="submit" className={cl.authButton}>
                         {isLogin ? "Войти" : "Зарегистрироваться"}
                     </button>
@@ -104,7 +99,7 @@ const Auth = () => {
                 </form>
             )}
         </div>
-    )
-}
+    );
+};
 
-export default Auth
+export default Auth;
