@@ -43,7 +43,8 @@ func Migrate() error {
             id SERIAL PRIMARY KEY,
             text_comment TEXT NOT NULL,
             user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-            corrected_ai BOOLEAN DEFAULT false
+            corrected_ai BOOLEAN DEFAULT false,
+			timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );`,
 	}
 

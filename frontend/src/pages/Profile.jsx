@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ToxicMeter from "../components/ToxicMeter";
 import { useAuth } from "../context/AuthContext";
@@ -8,40 +8,38 @@ import { AUTH_ROUTE } from "../utils/consts";
 import Comment from "../components/Comment";
 
 const Profile = () => {
-    const [userData, setUserData] = useState(JSON.parse(localStorage.getItem("userData") || "null"))
-    const { setAuthenticationStatus } = useAuth()
-    const navigate = useNavigate()
+    const [userData, setUserData] = useState(JSON.parse(localStorage.getItem("userData") || "null"));
+    const [comments, setComments] = useState([]);
+    const { setAuthenticationStatus } = useAuth();
+    const navigate = useNavigate();
 
-    const changed = 48
-    const total = 100
-    const perc = total === 0 ? 0 : Math.floor((changed / total) * 100)
+    const formatDate = (timestamp) => {
+        if (!timestamp) return "";
+        const date = new Date(timestamp);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
+    }    
 
-    const mockComments = [
-        {
-            id: 1,
-            timestamp: "47 минут назад",
-            text: "Очень серьезный текст очень важного комментария",
-            aiEdited: true
-        },
-        {
-            id: 2,
-            timestamp: "2 часа назад",
-            text: "Этот комментарий остался без изменений",
-            aiEdited: false
-        },
-        {
-            id: 3,
-            timestamp: "1 день назад",
-            text: "ИИ помог улучшить структуру предложения в этом комментарии",
-            aiEdited: true
-        }
-    ]
+    useEffect(() => {
+        if (!userData) return;
+
+        fetch(`http://localhost:3030/comments/${userData.id}`)
+            .then(res => res.json())
+            .then(data => setComments(data))
+            .catch(err => console.error("Ошибка загрузки комментариев:", err));
+    }, [userData]);
+
+    const changed = comments.filter(comment => comment.corrected).length;
+    const total = comments.length;
+    const perc = total === 0 ? 0 : Math.floor((changed / total) * 100);
 
     const handleLogout = () => {
         localStorage.removeItem("userData");
-        setAuthenticationStatus({ isAuthenticated: false })
-        navigate(AUTH_ROUTE)
-    }
+        setAuthenticationStatus({ isAuthenticated: false });
+        navigate(AUTH_ROUTE);
+    };
 
     return (
         <div className={cl.profile}>
@@ -54,7 +52,7 @@ const Profile = () => {
             </div>
 
             <div className={cl.metaInfo}>
-                <div className={cl.username}>@{userData.username}</div>
+                <div className={cl.username}>@{userData?.username}</div>
                 <div className={cl.logout} onClick={handleLogout}>Выйти</div>
             </div>
 
@@ -82,12 +80,12 @@ const Profile = () => {
             <h1>История</h1>
 
             <div className={cl.commentsList}>
-                {mockComments.map(comment => (
+                {comments.map(comment => (
                     <Comment
                         key={comment.id}
-                        timestamp={comment.timestamp}
+                        timestamp={formatDate(comment.timestamp)}
                         text={comment.text}
-                        aiEdited={comment.aiEdited}
+                        aiEdited={comment.corrected}
                     />
                 ))}
             </div>
@@ -95,4 +93,4 @@ const Profile = () => {
     )
 }
 
-export default Profile;
+export default Profile

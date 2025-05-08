@@ -4,15 +4,16 @@ import (
 	"encoding/json"
 	"log"
 	"myapp/internal/db"
-	"myapp/internal/model"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type CommentRequest struct {
-	Text   string `json:"text_comment"`
-	UserID int    `json:"user_id"`
+	Text        string `json:"text_comment"`
+	UserID      int    `json:"user_id"`
+	CorrectedAI bool   `json:"corrected_ai"`
 }
 
 func AddComment(w http.ResponseWriter, r *http.Request) {
@@ -22,19 +23,8 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := model.PredictText(req.Text)
-	if err != nil {
-		http.Error(w, "Model error", http.StatusInternalServerError)
-		return
-	}
-
-	corrected := false
-	if result == "CORRECTED" {
-		corrected = true
-	}
-
-	_, err = db.DB.Exec("INSERT INTO comments (text_comment, user_id, corrected_ai) VALUES ($1, $2, $3)",
-		req.Text, req.UserID, corrected)
+	_, err := db.DB.Exec("INSERT INTO comments (text_comment, user_id, corrected_ai, timestamp) VALUES ($1, $2, $3, $4)",
+		req.Text, req.UserID, req.CorrectedAI, time.Now())
 	if err != nil {
 		log.Printf("Error executing query: %v", err)
 		http.Error(w, "DB error", http.StatusInternalServerError)
@@ -44,12 +34,12 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"corrected": corrected,
+		"corrected": req.CorrectedAI,
 	})
 }
 
 func GetAllComments(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.DB.Query("SELECT id, text_comment, user_id, corrected_ai FROM comments")
+	rows, err := db.DB.Query("SELECT id, text_comment, user_id, corrected_ai, timestamp FROM comments")
 	if err != nil {
 		http.Error(w, "DB error", http.StatusInternalServerError)
 		return
@@ -61,16 +51,24 @@ func GetAllComments(w http.ResponseWriter, r *http.Request) {
 		var id, userID int
 		var text string
 		var corrected bool
-		rows.Scan(&id, &text, &userID, &corrected)
+		var timestamp time.Time
+
+		err := rows.Scan(&id, &text, &userID, &corrected, &timestamp)
+		if err != nil {
+			log.Printf("Scan error: %v", err)
+			continue
+		}
 
 		comments = append(comments, map[string]interface{}{
 			"id":        id,
 			"text":      text,
 			"user_id":   userID,
 			"corrected": corrected,
+			"timestamp": timestamp,
 		})
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(comments)
 }
 
@@ -82,7 +80,7 @@ func GetCommentsByUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID, _ := strconv.Atoi(parts[2])
-	rows, err := db.DB.Query("SELECT id, text_comment, corrected_ai FROM comments WHERE user_id=$1", userID)
+	rows, err := db.DB.Query("SELECT id, text_comment, corrected_ai, timestamp FROM comments WHERE user_id=$1", userID)
 	if err != nil {
 		http.Error(w, "DB error", http.StatusInternalServerError)
 		return
@@ -94,14 +92,22 @@ func GetCommentsByUser(w http.ResponseWriter, r *http.Request) {
 		var id int
 		var text string
 		var corrected bool
-		rows.Scan(&id, &text, &corrected)
+		var timestamp time.Time
+
+		err := rows.Scan(&id, &text, &corrected, &timestamp)
+		if err != nil {
+			log.Printf("Error scanning row: %v", err)
+			continue
+		}
 
 		comments = append(comments, map[string]interface{}{
 			"id":        id,
 			"text":      text,
 			"corrected": corrected,
+			"timestamp": timestamp,
 		})
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(comments)
 }

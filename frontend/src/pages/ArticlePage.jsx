@@ -17,27 +17,37 @@ const CATEGORY_NAMES = {
 };
 
 const ArticlePage = () => {
-    const [post, setPost] = useState(null);
-    const [comments, setComments] = useState([]);
-    const [loadingComments, setLoadingComments] = useState(true);
-    const { postId } = useParams();
-    const navigate = useNavigate();
+    const [post, setPost] = useState(null)
+    const [comments, setComments] = useState([])
+    const [loadingComments, setLoadingComments] = useState(true)
+    const {postId} = useParams()
+    const navigate = useNavigate()
+    const userData = JSON.parse(localStorage.getItem("userData"))
 
-    const [newComment, setNewComment] = useState("");
+    const [newComment, setNewComment] = useState("")
+
+    const formatDate = (timestamp) => {
+        if (!timestamp) return ""
+        const date = new Date(timestamp)
+        const day = String(date.getDate()).padStart(2, '0')
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
+    }  
 
     // Функция для получения комментариев
     const fetchAllComments = async () => {
         try {
-            const response = await fetch('http://localhost:3030/comments');
+            const response = await fetch('http://localhost:3030/comments')
             if (!response.ok) {
-                throw new Error('Не удалось загрузить комментарии');
+                throw new Error('Не удалось загрузить комментарии')
             }
-            return await response.json();
+            return await response.json()
         } catch (error) {
-            console.error(error);
-            return [];
+            console.error(error)
+            return []
         }
-    };
+    }
 
     // Функция для добавления нового комментария
     const addComment = async (commentData) => {
@@ -48,16 +58,16 @@ const ArticlePage = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(commentData),
-            });
+            })
             if (!response.ok) {
-                throw new Error('Не удалось добавить комментарий');
+                throw new Error('Не удалось добавить комментарий')
             }
-            return await response.json();
+            return await response.json()
         } catch (error) {
-            console.error(error);
-            return { corrected: false }; // Возвращаем значение по умолчанию, если ошибка
+            console.error(error)
+            return {corrected: false}
         }
-    };
+    }
 
     const detoxComment = async (commentText) => {
         const response = await fetch("http://localhost:5000/detox", {
@@ -65,44 +75,45 @@ const ArticlePage = () => {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ text: commentText }),
+            body: JSON.stringify({text: commentText}),
         });
         const data = await response.json();
-        return data.detoxed_text || commentText; // возвращаем измененный или исходный комментарий
-    };
+        return data.detoxed_text || commentText
+    }
     
     const handleCommentSubmit = async () => {
         if (!newComment.trim()) return;
     
         try {
-            const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-            const detoxedComment = await detoxComment(newComment); // получаем очищенный комментарий
+            const detoxedComment = await detoxComment(newComment);
     
-            const isCorrected = detoxedComment.trim() !== newComment.trim(); // проверка, изменён ли текст
+            // Сравниваем оригинальный текст с обработанным
+            let isCorrected = detoxedComment.trim() !== newComment.trim()
     
+            // Добавляем комментарий в базу данных
             const response = await addComment({
                 text_comment: detoxedComment,
                 user_id: userData.id,
-                corrected_ai: isCorrected, // добавляем флаг
-            });
+                corrected_ai: isCorrected,
+            })
     
+            // Обновляем список комментариев
             setComments(prev => [
                 ...prev,
                 {
-                    id: Date.now(), // временно, если сервер не возвращает id
+                    id: Date.now(),
                     text: detoxedComment,
-                    user: userData.username || "Аноним",
+                    user: userData.username,
                     timestamp: new Date().toISOString(),
                     aiEdited: isCorrected,
                 }
-            ]);
-            setNewComment("");
+            ])
+            setNewComment("")
         } catch (error) {
-            console.error("Ошибка при добавлении комментария:", error);
+            console.error("Ошибка при добавлении комментария:", error)
         }
-    };    
+    }
 
-    // Загрузка комментариев при монтировании компонента
     useEffect(() => {
         const fetchComments = async () => {
             try {
@@ -110,30 +121,29 @@ const ArticlePage = () => {
                 const withFallback = data.map(comment => ({
                     id: comment.id,
                     text: comment.text || comment.text_comment || "",
-                    user: "Пользователь #" + (comment.user_id || "?"),
+                    user: userData.username,
                     timestamp: new Date().toISOString(),
                     aiEdited: comment.corrected || false,
                 }));
-                setComments(withFallback);
+                setComments(withFallback)
             } catch (e) {
-                console.error("Ошибка при загрузке комментариев:", e);
+                console.error("Ошибка при загрузке комментариев:", e)
             } finally {
-                setLoadingComments(false);
+                setLoadingComments(false)
             }
-        };
+        }
 
-        fetchComments();
-    }, []);
+        fetchComments()
+    }, [])
 
-    // Загрузка поста при изменении поста ID
     useEffect(() => {
-        const mockPosts = JSON.parse(localStorage.getItem("mockPosts")) || [];
-        const foundPost = mockPosts.find(p => p.id === parseInt(postId));
+        const mockPosts = JSON.parse(localStorage.getItem("mockPosts")) || []
+        const foundPost = mockPosts.find(p => p.id === parseInt(postId))
         setPost(foundPost || null);
-    }, [postId]);
+    }, [postId])
 
     if (!post) {
-        return <div className={cl.container}>Пост не найден</div>;
+        return <div className={cl.container}>Пост не найден</div>
     }
 
     return (
@@ -181,7 +191,7 @@ const ArticlePage = () => {
                         <CommentPost
                             key={comment.id}
                             user={comment.user}
-                            timestamp={comment.timestamp}
+                            timestamp={formatDate(comment.timestamp)}
                             text={comment.text}
                             aiEdited={comment.aiEdited}
                         />
@@ -189,7 +199,7 @@ const ArticlePage = () => {
                 )}
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default ArticlePage;
+export default ArticlePage

@@ -13,7 +13,7 @@ const CommentPost = ({timestamp, text, aiEdited, user}) => {
             <div className={cl.metaInfo}>
                 <div className={cl.metaInfo1}>
                     <div className={cl.header}>
-                        <p>{user}</p>
+                        <p>@{user}</p>
                         {aiEdited && (
                             <span className={cl.edited}>
                                 <img src={star} alt="star" className={cl.starIcon} />

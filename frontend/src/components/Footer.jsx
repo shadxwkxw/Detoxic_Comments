@@ -25,7 +25,7 @@ const Footer = () => {
                         <a href="https://t.me/ykvnkm">Link Telegram</a>
                     </div>
                     <div className={cl.wrap}>
-                        <p>Беспалый Максим Frontend Developer</p>
+                        <p>Беспалый Максим Fullstack Developer</p>
                         <a href="https://t.me/kxwarvta">Link Telegram</a>
                     </div>
                     <div className={cl.wrap}>
