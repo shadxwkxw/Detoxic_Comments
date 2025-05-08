@@ -1,14 +1,35 @@
 package model
 
 import (
-	"os/exec"
-	"strings"
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
 )
 
 func PredictText(text string) (string, error) {
-	out, err := exec.Command("python3", "model_runner/run_model.py", text).Output()
+	requestBody, err := json.Marshal(map[string]string{
+		"text": text,
+	})
 	if err != nil {
 		return "", err
 	}
-	return strings.TrimSpace(string(out)), nil
+
+	resp, err := http.Post("http://localhost:5000/detox", "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	var responseData map[string]string
+	if err := json.Unmarshal(body, &responseData); err != nil {
+		return "", err
+	}
+
+	return responseData["detoxed_text"], nil
 }

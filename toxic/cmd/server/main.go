@@ -29,8 +29,8 @@ func main() {
 
 	handlerWithCORS := enableCORS(mux)
 
-	log.Println("Server started at :3000")
-	log.Fatal(http.ListenAndServe(":3000", handlerWithCORS))
+	log.Println("Server started at :3030")
+	log.Fatal(http.ListenAndServe(":3030", handlerWithCORS))
 }
 
 func enableCORS(next http.Handler) http.Handler {

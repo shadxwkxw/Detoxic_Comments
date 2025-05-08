@@ -1,9 +1,18 @@
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from transformers import AutoTokenizer, T5ForConditionalGeneration
 import torch
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 tokenizer = AutoTokenizer.from_pretrained("./models/ruT5-base", use_fast=False)
 model = T5ForConditionalGeneration.from_pretrained("s-nlp/ruT5-base-detox")

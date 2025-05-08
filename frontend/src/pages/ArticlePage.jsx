@@ -28,7 +28,7 @@ const ArticlePage = () => {
     // Функция для получения комментариев
     const fetchAllComments = async () => {
         try {
-            const response = await fetch('http://localhost:3000/comments');
+            const response = await fetch('http://localhost:3030/comments');
             if (!response.ok) {
                 throw new Error('Не удалось загрузить комментарии');
             }
@@ -42,7 +42,7 @@ const ArticlePage = () => {
     // Функция для добавления нового комментария
     const addComment = async (commentData) => {
         try {
-            const response = await fetch('http://localhost:3000/comment', {
+            const response = await fetch('http://localhost:3030/comment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -59,32 +59,48 @@ const ArticlePage = () => {
         }
     };
 
-    // Отправка нового комментария
+    const detoxComment = async (commentText) => {
+        const response = await fetch("http://localhost:5000/detox", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ text: commentText }),
+        });
+        const data = await response.json();
+        return data.detoxed_text || commentText; // возвращаем измененный или исходный комментарий
+    };
+    
     const handleCommentSubmit = async () => {
         if (!newComment.trim()) return;
-
+    
         try {
             const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+            const detoxedComment = await detoxComment(newComment); // получаем очищенный комментарий
+    
+            const isCorrected = detoxedComment.trim() !== newComment.trim(); // проверка, изменён ли текст
+    
             const response = await addComment({
-                text_comment: newComment,
+                text_comment: detoxedComment,
                 user_id: userData.id,
+                corrected_ai: isCorrected, // добавляем флаг
             });
-
+    
             setComments(prev => [
                 ...prev,
                 {
                     id: Date.now(), // временно, если сервер не возвращает id
-                    text: newComment,
+                    text: detoxedComment,
                     user: userData.username || "Аноним",
                     timestamp: new Date().toISOString(),
-                    aiEdited: response.corrected || false,
+                    aiEdited: isCorrected,
                 }
             ]);
             setNewComment("");
         } catch (error) {
             console.error("Ошибка при добавлении комментария:", error);
         }
-    };
+    };    
 
     // Загрузка комментариев при монтировании компонента
     useEffect(() => {

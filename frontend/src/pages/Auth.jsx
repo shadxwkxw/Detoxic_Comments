@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { MAIN_PAGE_ROUTE } from "../utils/consts";
 import { useAuth } from "../context/AuthContext";
 
-const API_URL = "http://localhost:3000"; // порт Go-сервера
+const API_URL = "http://localhost:3030"; // порт Go-сервера
 
 const Auth = () => {
     const [isLogin, setIsLogin] = useState(true);

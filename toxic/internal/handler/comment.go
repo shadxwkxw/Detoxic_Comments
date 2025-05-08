@@ -17,7 +17,10 @@ type CommentRequest struct {
 
 func AddComment(w http.ResponseWriter, r *http.Request) {
 	var req CommentRequest
-	json.NewDecoder(r.Body).Decode(&req)
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
 
 	result, err := model.PredictText(req.Text)
 	if err != nil {
@@ -38,7 +41,11 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"corrected": corrected,
+	})
 }
 
 func GetAllComments(w http.ResponseWriter, r *http.Request) {
