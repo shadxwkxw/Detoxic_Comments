@@ -9,8 +9,8 @@ const Footer = () => {
             <div className={cl.content}>
                 <div className={cl.about}>
                     <img className={cl.telegram} src={kolpaknews} alt="kolpak" />
-                    <p>© 2025 - 2025 Jacobs Колпак</p>
-                    <a href="https://github.com/FlexonaFFt/XackatonKolpaki2025" target="_blank" rel="noopener noreferrer">
+                    <p>© 2025 Jacobs Колпак</p>
+                    <a href="https://github.com/shadxwkxw/Detoxic_Comments" target="_blank" rel="noopener noreferrer">
                         <img className={cl.telegram} src={githubIcon} alt="GitHub" />
                     </a>
                 </div>

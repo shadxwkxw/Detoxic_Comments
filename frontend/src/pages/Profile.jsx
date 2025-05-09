@@ -6,34 +6,29 @@ import cl from "../styles/Profile.module.css";
 import userLogo from '../UI/icons/user.png';
 import { AUTH_ROUTE } from "../utils/consts";
 import Comment from "../components/Comment";
+import { formatDate } from '../utils/formatDate';
+import { fetchUserComments } from '../API/index';
 
 const Profile = () => {
-    const [userData, setUserData] = useState(JSON.parse(localStorage.getItem("userData") || "null"));
-    const [comments, setComments] = useState([]);
-    const { setAuthenticationStatus } = useAuth();
-    const navigate = useNavigate();
-
-    const formatDate = (timestamp) => {
-        if (!timestamp) return "";
-        const date = new Date(timestamp);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}.${month}.${year}`;
-    }    
+    const userData = JSON.parse(localStorage.getItem("userData") || "null")
+    const [comments, setComments] = useState([])
+    const {setAuthenticationStatus} = useAuth()
+    const navigate = useNavigate()
 
     useEffect(() => {
-        if (!userData) return;
+        if (!userData) return
 
-        fetch(`http://localhost:3030/comments/${userData.id}`)
-            .then(res => res.json())
-            .then(data => setComments(data))
-            .catch(err => console.error("Ошибка загрузки комментариев:", err));
-    }, [userData]);
+        const loadUserComments = async () => {
+            const data = await fetchUserComments(userData.id)
+            setComments(data || [])
+        }
 
-    const changed = comments.filter(comment => comment.corrected).length;
-    const total = comments.length;
-    const perc = total === 0 ? 0 : Math.floor((changed / total) * 100);
+        loadUserComments()
+    }, [userData])
+
+    const changed = Array.isArray(comments) ? comments.filter(comment => comment.corrected).length : 0
+    const total = Array.isArray(comments) ? comments.length : 0
+    const perc = total === 0 ? 0 : Math.floor((changed / total) * 100)
 
     const handleLogout = () => {
         localStorage.removeItem("userData");
@@ -80,14 +75,18 @@ const Profile = () => {
             <h1>История</h1>
 
             <div className={cl.commentsList}>
-                {comments.map(comment => (
-                    <Comment
-                        key={comment.id}
-                        timestamp={formatDate(comment.timestamp)}
-                        text={comment.text}
-                        aiEdited={comment.corrected}
-                    />
-                ))}
+                {total === 0 ? (
+                    <p className={cl.none}>У вас нет комментариев.</p>
+                ) : (
+                    comments.map(comment => (
+                        <Comment
+                            key={comment.id}
+                            timestamp={formatDate(comment.timestamp)}
+                            text={comment.text}
+                            aiEdited={comment.corrected}
+                        />
+                    ))
+                )}
             </div>
         </div>
     )

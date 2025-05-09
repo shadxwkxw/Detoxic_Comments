@@ -5,7 +5,7 @@ import { MAIN_PAGE_ROUTE } from "../utils/consts";
 import { useAuth } from "../context/AuthContext";
 
 const AppRouter = () => {
-    const { isUserAuthenticated } = useAuth();
+    const {isUserAuthenticated} = useAuth()
 
     return (
         <Routes>

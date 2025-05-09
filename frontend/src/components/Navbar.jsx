@@ -6,8 +6,8 @@ import kolpaknews from '../UI/icons/kolpaknews.svg';
 import { AUTH_ROUTE, MAIN_PAGE_ROUTE, PROFILE_ROUTE } from "../utils/consts";
 
 const Navbar = () => {
-    const navigate = useNavigate();
-    const {isUserAuthenticated} = useAuth();
+    const navigate = useNavigate()
+    const {isUserAuthenticated} = useAuth()
 
     return (
         <nav className={cl.navbar}>

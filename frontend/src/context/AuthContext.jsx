@@ -1,40 +1,25 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-const AuthContext = createContext()
+const AuthContext = createContext();
 
-export const useAuth = () => useContext(AuthContext)
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({children}) => {
     const [isUserAuthenticated, setIsUserAuthenticated] = useState(false)
 
     useEffect(() => {
-        const token = localStorage.getItem("token")
-        if (token) {
-            fetch("http://localhost:3000/users", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.is_admin === true) {
-                        setIsUserAuthenticated(true)
-                    } else {
-                        setIsUserAuthenticated(true)
-                    }
-                })
-                .catch(() => {
-                    setIsUserAuthenticated(false)
-                })
+        const userData = localStorage.getItem("userData")
+        if (userData) {
+            setIsUserAuthenticated(true)
         }
     }, [])
 
-    const setAuthenticationStatus = (status) => {
-        setIsUserAuthenticated(status.isAuthenticated)
+    const setAuthenticationStatus = ({isAuthenticated}) => {
+        setIsUserAuthenticated(isAuthenticated)
     }
 
     return (
-        <AuthContext.Provider value={{isUserAuthenticated, setIsUserAuthenticated, setAuthenticationStatus}}>
+        <AuthContext.Provider value={{isUserAuthenticated, setAuthenticationStatus}}>
             {children}
         </AuthContext.Provider>
     )

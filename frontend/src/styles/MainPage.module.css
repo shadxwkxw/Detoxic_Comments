@@ -23,7 +23,7 @@
 
 .articles {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
     gap: 20px;
     row-gap: 0;
     justify-content: center;
@@ -75,4 +75,37 @@ li {
 
 li:hover {
     background: #2e2e37;
+}
+
+.filters {
+    display: flex;
+    gap: 6px;
+    margin-top: 50px;
+    margin-bottom: 5px;
+}
+
+@media (max-width: 767px) {
+    .filters {
+        justify-content: center;
+    }
+}
+
+.filterBtn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background-color: rgb(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    border: none;
+    font-size: 12px;
+}
+
+.filterBtn:hover {
+    background-color: #4e4e4e;
+}
+
+.filterBtn.active {
+    background-color: #00aaff;
+    color: white;
 }

@@ -3,6 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import cl from "../styles/ArticlePage.module.css";
 import CommentPost from "../components/CommentPost";
 import plane from '../UI/icons/plane.svg';
+import { fetchAllComments, addComment, detoxComment } from '../API/index';
+import { formatDate } from '../utils/formatDate';
+import cul from '../UI/icons/cul.svg';
+import tech from '../UI/icons/tech.svg';
+import soc from '../UI/icons/soc.svg';
 
 const CATEGORY_STYLES = {
     1: cl.culture,
@@ -16,6 +21,12 @@ const CATEGORY_NAMES = {
     3: "ТЕХНОЛОГИИ",
 };
 
+const CATEGORY_IMAGES = {
+    1: cul,
+    2: soc,
+    3: tech,
+};
+
 const ArticlePage = () => {
     const [post, setPost] = useState(null)
     const [comments, setComments] = useState([])
@@ -26,79 +37,21 @@ const ArticlePage = () => {
 
     const [newComment, setNewComment] = useState("")
 
-    const formatDate = (timestamp) => {
-        if (!timestamp) return ""
-        const date = new Date(timestamp)
-        const day = String(date.getDate()).padStart(2, '0')
-        const month = String(date.getMonth() + 1).padStart(2, '0')
-        const year = date.getFullYear();
-        return `${day}.${month}.${year}`;
-    }  
-
-    // Функция для получения комментариев
-    const fetchAllComments = async () => {
-        try {
-            const response = await fetch('http://localhost:3030/comments')
-            if (!response.ok) {
-                throw new Error('Не удалось загрузить комментарии')
-            }
-            return await response.json()
-        } catch (error) {
-            console.error(error)
-            return []
-        }
-    }
-
-    // Функция для добавления нового комментария
-    const addComment = async (commentData) => {
-        try {
-            const response = await fetch('http://localhost:3030/comment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(commentData),
-            })
-            if (!response.ok) {
-                throw new Error('Не удалось добавить комментарий')
-            }
-            return await response.json()
-        } catch (error) {
-            console.error(error)
-            return {corrected: false}
-        }
-    }
-
-    const detoxComment = async (commentText) => {
-        const response = await fetch("http://localhost:5000/detox", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({text: commentText}),
-        });
-        const data = await response.json();
-        return data.detoxed_text || commentText
-    }
-    
     const handleCommentSubmit = async () => {
-        if (!newComment.trim()) return;
-    
+        if (!newComment.trim()) return
+
         try {
-            const detoxedComment = await detoxComment(newComment);
-    
-            // Сравниваем оригинальный текст с обработанным
+            const detoxedComment = await detoxComment(newComment)
             let isCorrected = detoxedComment.trim() !== newComment.trim()
-    
-            // Добавляем комментарий в базу данных
+
             const response = await addComment({
                 text_comment: detoxedComment,
                 user_id: userData.id,
                 corrected_ai: isCorrected,
             })
-    
+
             // Обновляем список комментариев
-            setComments(prev => [
+            setComments((prev) => [
                 ...prev,
                 {
                     id: Date.now(),
@@ -106,7 +59,7 @@ const ArticlePage = () => {
                     user: userData.username,
                     timestamp: new Date().toISOString(),
                     aiEdited: isCorrected,
-                }
+                },
             ])
             setNewComment("")
         } catch (error) {
@@ -118,13 +71,13 @@ const ArticlePage = () => {
         const fetchComments = async () => {
             try {
                 const data = await fetchAllComments();
-                const withFallback = data.map(comment => ({
+                const withFallback = data.map((comment) => ({
                     id: comment.id,
                     text: comment.text || comment.text_comment || "",
                     user: userData.username,
                     timestamp: new Date().toISOString(),
                     aiEdited: comment.corrected || false,
-                }));
+                }))
                 setComments(withFallback)
             } catch (e) {
                 console.error("Ошибка при загрузке комментариев:", e)
@@ -138,8 +91,8 @@ const ArticlePage = () => {
 
     useEffect(() => {
         const mockPosts = JSON.parse(localStorage.getItem("mockPosts")) || []
-        const foundPost = mockPosts.find(p => p.id === parseInt(postId))
-        setPost(foundPost || null);
+        const foundPost = mockPosts.find((p) => p.id === parseInt(postId))
+        setPost(foundPost || null)
     }, [postId])
 
     if (!post) {
@@ -148,15 +101,19 @@ const ArticlePage = () => {
 
     return (
         <div className={cl.container}>
-            <button onClick={() => navigate(-1)} className={cl.backButton}>← Назад</button>
+            <button onClick={() => navigate(-1)} className={cl.backButton}>
+                ← Назад
+            </button>
             <div className={`${cl.meta} ${CATEGORY_STYLES[post.category] || ""}`}>
-                <span className={`${cl.type} ${CATEGORY_STYLES[post.category] || ""}`}>
+                <span
+                    className={`${cl.type} ${CATEGORY_STYLES[post.category] || ""}`}
+                >
                     {CATEGORY_NAMES[post.category] || "Неизвестно"}
                 </span>
             </div>
             <h1 className={cl.title}>{post.title}</h1>
             <img
-                src="https://s3-alpha-sig.figma.com/img/4839/25f5/f5ce79046feb6f45b58ab338b1b00fd2?Expires=1744588800&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=IKpgYQRa5TCsGMp68SlmTPJFBNpdeaa9CT4Gzu3AGIhW9RXALcw23sY5IFg-PrGMaADu-r9VZVw1zGv8F~~1iYJzbFgGMe2ejtWhUNvcoVb32Q8F80AGJDXHdpaIEvcyjsTJyZsPPT0RzZKZzTBOV9QQrhNanTqYS-VDp5DeJIAXaC7vjy9v4Gp9hmiUCTs0iSYcpnUbYvLTfgXagrVH~Q5Che60YCXf1ZRN5D1PSYWUJXTH05yr1T2g-vh4qunC-ieXtDUWu2YXIQXoac6kJz9LcEAYon0gRMv5ZW2sYKaiOKWv7cXzJanYfk~QC~HKWzTFFfZqsYMUeqzPF2-WVw__"
+                src={CATEGORY_IMAGES[post.category] || ""}
                 alt="Article"
                 className={cl.image}
             />
@@ -187,7 +144,7 @@ const ArticlePage = () => {
                 ) : comments.length === 0 ? (
                     <p>Комментариев пока нет</p>
                 ) : (
-                    comments.map(comment => (
+                    comments.map((comment) => (
                         <CommentPost
                             key={comment.id}
                             user={comment.user}

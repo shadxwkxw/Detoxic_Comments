@@ -3,64 +3,50 @@ import cl from "../styles/Auth.module.css";
 import { useNavigate } from "react-router-dom";
 import { MAIN_PAGE_ROUTE } from "../utils/consts";
 import { useAuth } from "../context/AuthContext";
-
-const API_URL = "http://localhost:3030"; // порт Go-сервера
+import { loginUser, registerUser } from '../API/auth';
 
 const Auth = () => {
-    const [isLogin, setIsLogin] = useState(true);
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [userData, setUserData] = useState(JSON.parse(localStorage.getItem("userData") || "null"));
-    const { setAuthenticationStatus } = useAuth();
-    const navigate = useNavigate();
+    const [isLogin, setIsLogin] = useState(true)
+    const [username, setUsername] = useState("")
+    const [password, setPassword] = useState("")
+    const [userData, setUserData] = useState(JSON.parse(localStorage.getItem("userData") || "null"))
+    const {setAuthenticationStatus} = useAuth()
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (userData) {
-            setAuthenticationStatus({ isAuthenticated: true });
+            setAuthenticationStatus({isAuthenticated: true})
         }
-    }, [userData, setAuthenticationStatus]);
+    }, [userData, setAuthenticationStatus])
 
     const handleAuth = async (e) => {
-        e.preventDefault();
-        const endpoint = isLogin ? "/login" : "/register";
-        const payload = { login: username, password };
-
+        e.preventDefault()
+    
         try {
-            const response = await fetch(`${API_URL}${endpoint}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                if (isLogin) {
-                    const userObject = { username, id: data.id }; // Сохраняем id
-                    localStorage.setItem("userData", JSON.stringify(userObject));
-                    setUserData(userObject);
-                    setAuthenticationStatus({ isAuthenticated: true });
-                    navigate(MAIN_PAGE_ROUTE);
-                } else {
-                    alert("Регистрация успешна! Теперь войдите.");
-                    setIsLogin(true);
-                }
+            if (isLogin) {
+                const data = await loginUser(username, password)
+                const userObject = {username, id: data.id}
+                localStorage.setItem("userData", JSON.stringify(userObject))
+                setUserData(userObject)
+                setAuthenticationStatus({isAuthenticated: true})
+                navigate(MAIN_PAGE_ROUTE)
             } else {
-                alert(data.message || "Ошибка авторизации/регистрации");
+                await registerUser(username, password)
+                alert("Регистрация успешна! Теперь войдите.")
+                setIsLogin(true)
             }
-        } catch (error) {
-            console.error("Ошибка при авторизации:", error);
-            alert("Произошла ошибка при подключении к серверу");
+        } catch (err) {
+            alert(err.message || "Ошибка авторизации/регистрации")
         }
-    };
+    }   
 
     const logout = () => {
-        localStorage.removeItem("userData");
-        setUserData(null);
-        setUsername("");
-        setPassword("");
-        setAuthenticationStatus({ isAuthenticated: false, isAdmin: false });
-    };
+        localStorage.removeItem("userData")
+        setUserData(null)
+        setUsername("")
+        setPassword("")
+        setAuthenticationStatus({isAuthenticated: false})
+    }
 
     return (
         <div className={cl.authContainer}>
@@ -99,7 +85,7 @@ const Auth = () => {
                 </form>
             )}
         </div>
-    );
-};
+    )
+}
 
-export default Auth;
+export default Auth
