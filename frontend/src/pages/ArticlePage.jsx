@@ -34,15 +34,18 @@ const ArticlePage = () => {
     const {postId} = useParams()
     const navigate = useNavigate()
     const userData = JSON.parse(localStorage.getItem("userData"))
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const [newComment, setNewComment] = useState("")
 
     const handleCommentSubmit = async () => {
         if (!newComment.trim()) return
 
+        setIsSubmitting(true)
+
         try {
             const detoxedComment = await detoxComment(newComment)
-            let isCorrected = detoxedComment.trim() !== newComment.trim()
+            const isCorrected = detoxedComment.trim() !== newComment.trim()
 
             const response = await addComment({
                 text_comment: detoxedComment,
@@ -50,7 +53,6 @@ const ArticlePage = () => {
                 corrected_ai: isCorrected,
             })
 
-            // Обновляем список комментариев
             setComments((prev) => [
                 ...prev,
                 {
@@ -64,6 +66,8 @@ const ArticlePage = () => {
             setNewComment("")
         } catch (error) {
             console.error("Ошибка при добавлении комментария:", error)
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
@@ -133,8 +137,16 @@ const ArticlePage = () => {
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                     />
-                    <button className={cl.commentSubmitIcon} onClick={handleCommentSubmit}>
-                        <img src={plane} alt="submit" />
+                    <button
+                        className={cl.commentSubmitIcon}
+                        onClick={handleCommentSubmit}
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? (
+                            <div className={cl.loader} />
+                        ) : (
+                            <img src={plane} alt="submit" />
+                        )}
                     </button>
                 </div>
             </div>
