@@ -42,3 +42,13 @@ export const fetchUserComments = async (userId) => {
         return []
     }
 }
+
+export const fetchAllUsers = async () => {
+    try {
+        const res = await axios.get(`${API_BASE}/users`)
+        return res.data
+    } catch (error) {
+        console.error("Ошибка загрузки пользователей:", error)
+        return []
+    }
+}

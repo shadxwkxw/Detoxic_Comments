@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import cl from "../styles/ArticlePage.module.css";
 import CommentPost from "../components/CommentPost";
 import plane from '../UI/icons/plane.svg';
-import { fetchAllComments, addComment, detoxComment } from '../API/index';
+import { fetchAllComments, addComment, detoxComment, fetchAllUsers } from '../API/index';
 import { formatDate } from '../utils/formatDate';
 import cul from '../UI/icons/cul.svg';
 import tech from '../UI/icons/tech.svg';
@@ -74,14 +74,22 @@ const ArticlePage = () => {
     useEffect(() => {
         const fetchComments = async () => {
             try {
-                const data = await fetchAllComments();
-                const withFallback = data.map((comment) => ({
-                    id: comment.id,
-                    text: comment.text || comment.text_comment || "",
-                    user: userData.username,
-                    timestamp: new Date().toISOString(),
-                    aiEdited: comment.corrected || false,
-                }))
+                const data = await fetchAllComments()
+                const datauser = await fetchAllUsers()
+
+                const withFallback = data.map((comment) => {
+                    const userMatch = datauser.find(u => u.id === comment.user_id)
+                    const username = userMatch.login
+
+                    return {
+                        id: comment.id,
+                        text: comment.text || comment.text_comment || "",
+                        user: username,
+                        timestamp: new Date().toISOString(),
+                        aiEdited: comment.corrected || false,
+                    }
+                })
+
                 setComments(withFallback)
             } catch (e) {
                 console.error("Ошибка при загрузке комментариев:", e)
