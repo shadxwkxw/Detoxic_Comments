@@ -23,26 +23,32 @@
 
 📦 Detoxic_Comments
 ┣ 📂 backend                     # Бэкенд-сервер на Go + Python
-┃ ┣ 📂 cmd/server                # Точка входа Go-приложения
-┃ ┃ ┗ 📜 main.go                 # Запуск HTTP-сервера
-┃ ┣ 📂 internal                  # Внутренние модули Go-приложения
-┃ ┃ ┣ 📂 db                      # Работа с базой данных (инициализация, подключения)
-┃ ┃ ┣ 📂 handler                 # HTTP-хендлеры (обработка запросов)
-┃ ┃ ┗ 📂 model                   # Структуры моделей (например, User, Comment и т.д.)
+┃ ┣ 📂 go                        # Точка входа Go-приложения
+┃ ┃ ┣ 📂 cmd/server              # Точка входа Go-приложения
+┃ ┃ ┣ ┗ 📜 main.go               # Запуск HTTP-сервера
+┃ ┃ ┣ 📂 internal                # Внутренние модули Go-приложения
+┃ ┃ ┃ ┣ 📂 db                    # Работа с базой данных
+┃ ┃ ┃ ┃ ┗ 📜 conn.go             # Подключение и инициализация базы данных
+┃ ┃ ┃ ┣ 📂 handler               # HTTP-хендлеры (обработка запросов)
+┃ ┃ ┃ ┃ ┣ 📜 comment.go
+┃ ┃ ┃ ┃ ┗ 📜 user.go
+┃ ┃ ┃ ┗ 📂 model                 # Структуры моделей
+┃ ┃ ┃   ┣ 📜 predict.go          # Детоксикация текста
+┃ ┃ ┃   ┗ 📜 user.go             # Инициализация базы
+┃ ┃ ┣ 📜 init.sql                # SQL-скрипт для инициализации БД
+┃ ┃ ┣ 📜 go.mod                  # Go-модули
+┃ ┃ ┗ 📜 go.sum
 ┃ ┣ 📂 models/ruT5-base          # Предобученная модель ruT5 для анализа токсичности
 ┃ ┃ ┣ 📜 special_tokens_map.json
 ┃ ┃ ┣ 📜 spiece.model
 ┃ ┃ ┗ 📜 tokenizer_config.json
 ┃ ┣ 📂 venv                     # Виртуальное окружение Python (игнорируется Git)
 ┃ ┣ 📜 app.py                   # Python-интерфейс для работы с моделью ruT5
-┃ ┣ 📜 init.sql                 # SQL-скрипт для инициализации БД
-┃ ┣ 📜 go.mod                   # Go-модули
-┃ ┣ 📜 go.sum
 ┃ ┗ 📜 requirements.txt         # Зависимости Python
 ┣ 📂 frontend                    # Веб-интерфейс на React
 ┃ ┣ 📂 public                   # Статичные файлы (HTML-шаблон)
 ┃ ┃ ┗ 📜 index.html
-┃ ┃ 📂 src                      # Исходный код React-приложения
+┃ ┣ 📂 src                      # Исходный код React-приложения
 ┃ ┃ ┣ 📂 API                    # API-запросы к бэкенду (fetch/axios)
 ┃ ┃ ┃ ┣ 📜 auth.js             # Авторизация и регистрация
 ┃ ┃ ┃ ┗ 📜 index.js            # Общие запросы
@@ -73,10 +79,10 @@
 ┃ ┃ ┣ 📜 index.js              # Точка входа React
 ┃ ┃ ┣ 📜 index.css             # Глобальные стили
 ┃ ┃ ┗ 📜 routes.js             # Объявление роутов
+┃ ┣ 📜 .gitignore
 ┃ ┣ 📜 package.json            # Зависимости frontend
 ┃ ┗ 📜 package-lock.json
 ┣ 📜 .gitignore
-┣ 📜 requirements.txt          # Зависимости всего проекта
 ┗📜 README.md
 
 </pre>
