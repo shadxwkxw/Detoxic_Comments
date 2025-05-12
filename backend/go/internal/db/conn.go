@@ -22,8 +22,9 @@ func Init() error {
 	password := os.Getenv("DB_PASSWORD")
 	name := os.Getenv("DB_NAME")
 	port := os.Getenv("DB_PORT")
+	host := os.Getenv("DB_HOST")
 
-	connStr := fmt.Sprintf("port=%s user=%s password=%s dbname=%s sslmode=disable", port, user, password, name)
+	connStr := fmt.Sprintf("host =%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, name)
 
 	var err error
 	DB, err = sql.Open("postgres", connStr)

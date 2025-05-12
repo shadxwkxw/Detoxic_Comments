@@ -14,7 +14,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-tokenizer = AutoTokenizer.from_pretrained("./models/ruT5-base", use_fast=False)
+tokenizer = AutoTokenizer.from_pretrained("ai-forever/ruT5-base", use_fast=False)
 model = T5ForConditionalGeneration.from_pretrained("s-nlp/ruT5-base-detox")
 
 class TextIn(BaseModel):
